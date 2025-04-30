@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-['Poppins'] antialiased;
+  }
+}
+
+@layer components {
+  .meteor {
+    @apply absolute w-1 h-1 bg-primary rounded-full shadow-[0_0_0_1px_#ffffff10] rotate-[215deg];
+    animation: meteor 5s linear infinite;
+  }
+
+  .meteor-container {
+    @apply fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0;
+  }
+}
+
+.dark-mode {
+  @apply bg-secondary text-white;
+}
+
+.dark-mode .bg-secondary-light {
+  background-color: #2D2D2D;
+}
+
+/* Removed the circular dependency */
+.dark-mode .text-primary {
+  color: var(--primary-color);
+}
+
+.light-mode {
+  @apply bg-white text-gray-900;
+}
+
+.light-mode .bg-secondary {
+  @apply bg-white;
+}
+
+.light-mode .bg-secondary-light {
+  @apply bg-gray-100;
+}
+
+.light-mode .text-white {
+  @apply text-gray-900;
+}
+
+.light-mode .text-gray-400 {
+  @apply text-gray-600;
+}
+
+.light-mode .border-gray-700 {
+  @apply border-gray-200;
+}
+
+.light-mode .hover\:bg-gray-800:hover {
+  @apply hover:bg-gray-200;
+}
