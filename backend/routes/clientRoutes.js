@@ -7,7 +7,6 @@ import {
     updateClient,
     deleteClient,
     getActiveClients,
-    // getUpComing,
     getUpComingBirthdays,
     getUpcomingMembershipDue,
     getClientsWithDuePayments
@@ -18,7 +17,6 @@ const router = express.Router();
 router.post('/createClient', createClient);
 router.get('/getClients', getClients);
 router.get('/active', getActiveClients);
-// router.get("/upcoming", getUpComing);
 router.get('/birthday', getUpComingBirthdays);
 router.get('/due-memberships', getUpcomingMembershipDue);
 router.get('/due-payment', getClientsWithDuePayments);
