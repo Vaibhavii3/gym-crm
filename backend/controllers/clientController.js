@@ -23,7 +23,7 @@ export const createClient = async (req, res) => {
         const image = req.files.clientImage;
 
         // validation
-        if( !name || !phone || !email || !birthday ||!membershipStartDate || !membershipType || !totalPaid || !dueAmount || !status) {
+        if( !name || !phone || !email || !birthday ||!membershipStartDate || !membershipType || !totalPaid == null || !dueAmount == null || !status) {
             return res.status(400).json({
                 success:false,
                 message: 'All fields are required',
@@ -42,12 +42,28 @@ export const createClient = async (req, res) => {
         }
 
         const startDate = dayjs(membershipStartDate);
+        if (!startDate.isValid()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid membership start date.'
+            });
+        }
+
         const durationMap = {
             "monthly": 1,
             "3-month": 3,
             "6-month": 6,
         };
-        const endDate = startDate.add(durationMap[membershipType], 'month');
+        // const endDate = startDate.add(durationMap[membershipType], 'month');
+
+        const duration = durationMap[membershipType.toLowerCase()];
+        if (!duration) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid membership type. Choose from monthly, 3-month, or 6-month.',
+            });
+        }
+        const endDate = startDate.add(duration, 'month');
 
         //upload Image to Cloudinary
         const clientImage = await uploadImageToCloudinary(image, process.env.Folder_NAME);
@@ -132,23 +148,92 @@ export const deleteClient = async (req, res) => {
 };
 
 // Get Clients with Upcoming Birthday or Due Membership
-export const getUpComing = async (req, res) => {
+// export const getUpComing = async (req, res) => {
+//     try {
+//         const today = dayjs();
+//         const nextWeek = today.add(7, 'day');
+
+//         const upcomingClients = await Client.find({
+//             $or: [
+//                 { birthday: { $gte: today.toDate(), $lte: nextWeek.toDate() } },
+//                 { membershipEndDate: { $gte: today.toDate(), $lte: nextWeek.toDate() }}
+//             ]
+//         });
+
+//         res.status(200).json(upcomingClients);
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
+// Get Clients Upcoming Birthday
+export const getUpComingBirthdays = async (req, res) => {
     try {
         const today = dayjs();
         const nextWeek = today.add(7, 'day');
 
-        const upcomingClients = await Client.find({
-            $or: [
-                { birthday: { $gte: today.toDate(), $lte: nextWeek.toDate() } },
-                { membershipEndDate: { $gte: today.toDate(), $lte: nextWeek.toDate() }}
-            ]
-        });
+        const clients = await Client.aggregate([
+            {
+                $addFields: {
+                    birthdayMonthDay: {
+                        $dateToString: { format: "%m-%d", date: "$birthday" },
+                    },
+                },
+            },
+            {
+                $match: {
+                    status: "active",
+                    birthdayMonthDay: {
+                        $gte: today.format("MM-DD"),
+                        $lte: nextWeek.format("MM-DD"),
+                    },
+                },
+            },
+        ]);
 
-        res.status(200).json(upcomingClients);
+        res.status(200).json(clients);
     } catch (error) {
+        console.error('Error fetching upcoming birthday:', error);
         res.status(500).json({ message: error.message });
     }
 };
+
+// get upcoming membership End Dates (Due Renewals)
+export const getUpcomingMembershipDue = async (req, res) => {
+    try {
+        const today = dayjs().startOf('day');
+        const nextWeek = today.add(7, 'day').endOf('day');
+
+        const clients = await Client.find({
+            status: 'active',
+            membershipEndDate: {
+                $gte: today.toDate(),
+                $lte: nextWeek.toDate(),
+            },
+        });
+
+        res.status(200).json(clients);
+    } catch (error) {
+        console.error('Error fetching upcoming due memberships:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Get Clients with Due Payments
+export const getClientsWithDuePayments = async (req, res) => {
+    try {
+        const clients = await Client.find({
+            status: 'active',
+            dueAmount: { $exists: true, $gt: 0 },
+        });
+
+        res.status(200).json(clients);
+    } catch (error) {
+        console.error('Error fetching clients with due payments:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 
 //Get Active Clients
 
