@@ -147,25 +147,6 @@ export const deleteClient = async (req, res) => {
     }
 };
 
-// Get Clients with Upcoming Birthday or Due Membership
-// export const getUpComing = async (req, res) => {
-//     try {
-//         const today = dayjs();
-//         const nextWeek = today.add(7, 'day');
-
-//         const upcomingClients = await Client.find({
-//             $or: [
-//                 { birthday: { $gte: today.toDate(), $lte: nextWeek.toDate() } },
-//                 { membershipEndDate: { $gte: today.toDate(), $lte: nextWeek.toDate() }}
-//             ]
-//         });
-
-//         res.status(200).json(upcomingClients);
-//     } catch (error) {
-//         res.status(500).json({ message: error.message });
-//     }
-// };
-
 // Get Clients Upcoming Birthday
 export const getUpComingBirthdays = async (req, res) => {
     try {
