@@ -227,3 +227,132 @@ export const getActiveClients = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+// Get Clients Grouped by Membership Type
+export const getClientByMembershipType = async (req, res) => {
+    try {
+        const groupedClients = await Client.aggregate([
+            {
+                $match: {
+                    status: "active"
+                }
+            },
+            {
+                $group: {
+                    _id: "$membershipType",
+                    clients: { $push: "$$ROOT" },
+                    count: { $sum: 1}
+                }
+            },
+            {
+                $project: {
+                    membershipType: "$_id",
+                    clients: 1,
+                    count: 1,
+                    _id: 0
+                }
+            }
+        ]);
+        res.status(200).json(groupedClients);
+    } catch (error) {
+        console.error("Error fetching clients by membership type:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+
+// Get New Joinings by Month
+export const getMonthlyJoinings = async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+
+        const match = {
+            status: "active"
+        };
+
+        if (startDate && endDate) {
+            match.membershipStartDate = {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate)
+            };
+        }
+
+    const Joinings = await Client.aggregate([
+        { $match: match },
+        {
+            $group: {
+                _id: {
+                    year: { $year: "$membershipStartDate" },
+                    month: { $month: "$membershipStartDate"}
+                },
+                newJoinings: { $sum: 1 }
+            }
+        },
+        { $sort: { "_id.year": 1, "_id": 1 } },
+        {
+            $project: {
+                month: {
+                    $concat: [
+                        { $toString: "$_id.month" },
+                        "-",
+                        { $toString: "$_id.year" }
+                    ]
+                },
+                newJoinings: 1,
+                _id: 0
+            }
+        }
+    ]);
+    res.status(200).json(Joinings);
+    } catch (error) {
+        console.error("Error fetching monthly joinings:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+// Get Monthly Revenue
+export const getMonthlyRevenue = async (req, res) => {
+    try {
+        const revenue = await Client.aggregate([
+            {
+                $match: {
+                    status: "active"
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$membershipStartDate"},
+                        month: { $month: "$membershipStartDate"}
+                    },
+                    totalRevenue: { $sum: "$totalPaid"},
+                    clients: { $sum: 1 }
+                }
+            },
+            {
+                $sort: {
+                    "_id.year": 1,
+                    "_id.month": 1
+                }
+            },
+            {
+                $project: {
+                    month: {
+                        $concat: [
+                            { $toString: "$_id.month" },
+                            "-",
+                            { $toString: "$_id.year"}
+                        ]
+                    },
+                    totalRevenue: 1,
+                    clients: 1,
+                    _id: 0
+                }
+            }
+        ]);
+        res.status(200).json(revenue);
+    } catch (error) {
+        console.error("Error calculating monthly revenue:", error);
+        res.status(500).json({ message: "Internal Server Error"});
+    }
+};
