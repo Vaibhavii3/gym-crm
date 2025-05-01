@@ -7,7 +7,10 @@ import {
     updateClient,
     deleteClient,
     getActiveClients,
-    getUpComing
+    // getUpComing,
+    getUpComingBirthdays,
+    getUpcomingMembershipDue,
+    getClientsWithDuePayments
 } from '../controllers/clientController.js'
 
 const router = express.Router();
@@ -15,7 +18,10 @@ const router = express.Router();
 router.post('/createClient', createClient);
 router.get('/getClients', getClients);
 router.get('/active', getActiveClients);
-router.get("/upcoming", getUpComing);
+// router.get("/upcoming", getUpComing);
+router.get('/birthday', getUpComingBirthdays);
+router.get('/due-memberships', getUpcomingMembershipDue);
+router.get('/due-payment', getClientsWithDuePayments);
 router.get('/:id', getClientById);
 router.put("/:id", updateClient);
 router.delete("/:id", deleteClient);
