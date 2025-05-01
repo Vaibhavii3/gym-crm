@@ -9,7 +9,10 @@ import {
     getActiveClients,
     getUpComingBirthdays,
     getUpcomingMembershipDue,
-    getClientsWithDuePayments
+    getClientsWithDuePayments,
+    getClientByMembershipType,
+    getMonthlyJoinings,
+    getMonthlyRevenue
 } from '../controllers/clientController.js'
 
 const router = express.Router();
@@ -20,6 +23,9 @@ router.get('/active', getActiveClients);
 router.get('/birthday', getUpComingBirthdays);
 router.get('/due-memberships', getUpcomingMembershipDue);
 router.get('/due-payment', getClientsWithDuePayments);
+router.get('/group', getClientByMembershipType);
+router.get('/joining', getMonthlyJoinings);
+router.get('/revenue', getMonthlyRevenue);
 router.get('/:id', getClientById);
 router.put("/:id", updateClient);
 router.delete("/:id", deleteClient);
