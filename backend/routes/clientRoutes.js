@@ -13,9 +13,14 @@ import {
     getClientByMembershipType,
     getMonthlyJoinings,
     getMonthlyRevenue
-} from '../controllers/clientController.js'
+} from '../controllers/clientController.js';
+
+import { protect } from "../middlewares/authMiddleware.js";
+
 
 const router = express.Router();
+
+router.use(protect);
 
 router.post('/createClient', createClient);
 router.get('/getClients', getClients);
