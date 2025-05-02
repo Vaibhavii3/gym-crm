@@ -7,6 +7,7 @@ import fileUpload from 'express-fileupload';
 
 
 import clientRoutes from './routes/clientRoutes.js'
+import adminRoutes from './routes/adminRoutes.js'
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ cloudinaryConnect();
 
 // routes
 app.use('/api/v1/clients', clientRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
 app.get('/', (req, res) => {
     res.send('Gym CRM API is Running...');
