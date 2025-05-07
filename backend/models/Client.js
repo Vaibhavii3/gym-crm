@@ -14,11 +14,11 @@ const clientSchema = new mongoose.Schema({
         required: true },
 
     birthday: { type: Date },
-    age: { type: Number },
-    weight: { type: Number },
-    address: { type: String },
-    aadharNumber: { type: String },
-    medicalProblems: { type: String },
+    age: { type: Number, default: null },
+    weight: { type: Number, default: null },
+    address: { type: String, default: null },
+    aadharNumber: { type: String, default: null },
+    medicalProblems: { type: String, default: null },
 
     membershipType: { type: String,  enum: ['Monthly', '3-months', '6-months'], default: 'Monthly' },
 
