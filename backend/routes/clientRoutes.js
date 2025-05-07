@@ -12,11 +12,11 @@ import {
     getClientsWithDuePayments,
     getClientByMembershipType,
     getMonthlyJoinings,
-    getMonthlyRevenue
+    getMonthlyRevenue,
+    markClientAsPaid
 } from '../controllers/clientController.js';
 
 import { protect } from "../middlewares/authMiddleware.js";
-
 
 const router = express.Router();
 
@@ -34,6 +34,7 @@ router.get('/revenue', getMonthlyRevenue);
 router.get('/:id', getClientById);
 router.put("/:id", updateClient);
 router.delete("/:id", deleteClient);
+router.patch("/:id/mark-paid", markClientAsPaid);
 
 export default router;
 

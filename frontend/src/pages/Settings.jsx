@@ -200,7 +200,7 @@ const Settings = () => {
       <SettingsSection>
         <SectionTitle>Profile</SectionTitle>
         <ProfileContainer>
-          <ProfileImage src={currentUser.avatar} alt={currentUser.name} />
+          <ProfileImage src={currentUser.image} alt={currentUser.name} />
           <ProfileInfo>
             <ProfileName>{currentUser.name}</ProfileName>
             <ProfileRole>{currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)}</ProfileRole>

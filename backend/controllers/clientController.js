@@ -1,3 +1,277 @@
+
+// // Get All Clients
+// export const getClients = async (req, res) => {
+//     try {
+//         const clients = await Client.find();
+//         res.status(200).json(clients);
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
+// // Get Single Client
+// export const getClientById = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const client = await Client.findById(id);
+
+//         if (!client) return res.status(404).json({ message: 'Client not found' });
+
+//         res.status(200).json(client);
+//     } catch (error) {
+//         console.error('Error fetching client:', error);
+//         res.status(500).json({ error: 'Internal Server Error' });
+//     }
+// };
+
+// // Update Client
+// export const updateClient = async (req, res) => {
+//     try {
+//         const client = await Client.findByIdAndUpdate(req.params.id, req.body, { new: true}
+//         );
+//         if (!client) return res.status(404).json({ message: 'Client not found' });
+//         res.status(200).json(client);
+//     } catch (error) {
+//         res.status(400).json({ message: error.message });
+//     }
+// };
+
+// //Delete Client
+// export const deleteClient = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+
+//         if (!mongoose.Types.ObjectId.isValid(id)) {
+//             return res.status(400).json({ error: "Invalid client ID"});
+//         }
+
+//         const client = await Client.findByIdAndDelete(id);
+//         if (!client) return res.status(404).json({ message: 'Client not found '});
+
+//         res.status(200).json({ message: 'Client removed' });
+//     } catch (error) {
+//         console.error('Error deleting client:', error);
+//         res.status(500).json({ error: 'Internal Server Error' });
+//     }
+// };
+
+// // Get Clients Upcoming Birthday
+// export const getUpComingBirthdays = async (req, res) => {
+//     try {
+//         const today = dayjs();
+//         const nextWeek = today.add(7, 'day');
+
+//         const clients = await Client.aggregate([
+//             {
+//                 $addFields: {
+//                     birthdayMonthDay: {
+//                         $dateToString: { format: "%m-%d", date: "$birthday" },
+//                     },
+//                 },
+//             },
+//             {
+//                 $match: {
+//                     status: "active",
+//                     birthdayMonthDay: {
+//                         $gte: today.format("MM-DD"),
+//                         $lte: nextWeek.format("MM-DD"),
+//                     },
+//                 },
+//             },
+//         ]);
+
+//         res.status(200).json(clients);
+//     } catch (error) {
+//         console.error('Error fetching upcoming birthday:', error);
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
+// // get upcoming membership End Dates (Due Renewals)
+// export const getUpcomingMembershipDue = async (req, res) => {
+//     try {
+//         const today = dayjs().startOf('day');
+//         const nextWeek = today.add(7, 'day').endOf('day');
+
+//         const clients = await Client.find({
+//             status: 'active',
+//             membershipEndDate: {
+//                 $gte: today.toDate(),
+//                 $lte: nextWeek.toDate(),
+//             },
+//         });
+
+//         res.status(200).json(clients);
+//     } catch (error) {
+//         console.error('Error fetching upcoming due memberships:', error);
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
+// // Get Clients with Due Payments
+// export const getClientsWithDuePayments = async (req, res) => {
+//     try {
+//         const clients = await Client.find({
+//             status: 'active',
+//             dueAmount: { $exists: true, $gt: 0 },
+//         });
+
+//         res.status(200).json(clients);
+//     } catch (error) {
+//         console.error('Error fetching clients with due payments:', error);
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
+
+// //Get Active Clients
+
+// export const getActiveClients = async (req, res) => {
+//     try {
+//         const activeClients = await Client.find({ status: 'active' });
+//         res.status(200).json(activeClients);
+//     } catch (error) {
+//         console.error('Error fetching active clients:', error);
+//         res.status(500).json({ error: 'Internal Server Error' });
+//     }
+// };
+
+// // Get Clients Grouped by Membership Type
+// export const getClientByMembershipType = async (req, res) => {
+//     try {
+//         const groupedClients = await Client.aggregate([
+//             {
+//                 $match: {
+//                     status: "active"
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: "$membershipType",
+//                     clients: { $push: "$$ROOT" },
+//                     count: { $sum: 1}
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     membershipType: "$_id",
+//                     clients: 1,
+//                     count: 1,
+//                     _id: 0
+//                 }
+//             }
+//         ]);
+//         res.status(200).json(groupedClients);
+//     } catch (error) {
+//         console.error("Error fetching clients by membership type:", error);
+//         res.status(500).json({ message: "Internal Server Error" });
+//     }
+// };
+
+
+// // Get New Joinings by Month
+// export const getMonthlyJoinings = async (req, res) => {
+//     try {
+//         const { startDate, endDate } = req.query;
+
+//         const match = {
+//             status: "active"
+//         };
+
+//         match.membershipStartDate = {
+//             $gte: new Date(startDate),
+//             $lte: new Date(endDate)
+//         };
+
+//         if (startDate && endDate) {
+//             match.membershipStartDate = {
+//                 $gte: new Date(startDate),
+//                 $lte: new Date(endDate)
+//             };
+//         }
+
+//     const Joinings = await Client.aggregate([
+//         { $match: match },
+//         {
+//             $group: {
+//                 _id: {
+//                     year: { $year: "$membershipStartDate"},
+//                     month: { $month: "$membershipStartDate"}
+//                 },
+//                 newJoinings: { $sum: 1 }
+//             }
+//         },
+//         { $sort: { "_id.year": 1, "_id": 1 } },
+//         {
+//             $project: {
+//                 month: {
+//                     $concat: [
+//                         { $toString: "$_id.month" },
+//                         "-",
+//                         { $toString: "$_id.year" }
+//                     ]
+//                 },
+//                 newJoinings: 1,
+//                 _id: 0
+//             }
+//         }
+//     ]);
+//     console.log("Joinings data:", Joinings);
+//     res.status(200).json(Joinings);
+    
+//     } catch (error) {
+//         console.error("Error fetching monthly joinings:", error);
+//         res.status(500).json({ message: "Internal Server Error" });
+//     }
+// };
+
+// // Get Monthly Revenue
+// export const getMonthlyRevenue = async (req, res) => {
+//     try {
+//         const revenue = await Client.aggregate([
+//             {
+//                 $match: {
+//                     status: "active"
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: {
+//                         year: { $year: "$membershipStartDate"},
+//                         month: { $month: "$membershipStartDate"}
+//                     },
+//                     totalRevenue: { $sum: "$totalPaid"},
+//                     clients: { $sum: 1 }
+//                 }
+//             },
+//             {
+//                 $sort: {
+//                     "_id.year": 1,
+//                     "_id.month": 1
+//                 }
+//             },
+//             {
+//                 $project: {
+//                     month: {
+//                         $concat: [
+//                             { $toString: "$_id.month" },
+//                             "-",
+//                             { $toString: "$_id.year"}
+//                         ]
+//                     },
+//                     totalRevenue: 1,
+//                     clients: 1,
+//                     _id: 0
+//                 }
+//             }
+//         ]);
+//         res.status(200).json(revenue);
+//     } catch (error) {
+//         console.error("Error calculating monthly revenue:", error);
+//         res.status(500).json({ message: "Internal Server Error"});
+//     }
+// };
+
 import mongoose from "mongoose";
 import Client from "../models/Client.js";
 import { uploadImageToCloudinary } from "../utils/imageUploader.js";
@@ -6,12 +280,16 @@ import dayjs from 'dayjs';
 // Create Client
 export const createClient = async (req, res) => {
     try {
-
         const {
             name,
             phone,
             email,
             birthday,
+            age,
+            weight,
+            address,
+            aadharNumber,
+            medicalProblems,
             membershipType,
             membershipStartDate,
             personalTrainer,
@@ -20,24 +298,33 @@ export const createClient = async (req, res) => {
             status,
         } = req.body;
 
+        // Check if image was uploaded
+        if (!req.files || !req.files.clientImage) {
+            return res.status(400).json({
+                success: false,
+                message: 'Client image is required',
+            });
+        }
+        
         const image = req.files.clientImage;
 
-        // validation
-        if( !name || !phone || !email || !birthday ||!membershipStartDate || !membershipType || !totalPaid == null || !dueAmount == null || !status) {
+        // Validation
+        if (!name || !phone || !email || !birthday || !membershipStartDate || !membershipType || totalPaid === undefined || dueAmount === undefined) {
             return res.status(400).json({
-                success:false,
+                success: false,
                 message: 'All fields are required',
             });
         }
 
-        //Check if client with same phone or email already exists
+        // Check if client with same phone or email already exists
         const existingClient = await Client.findOne({
-            $or: [{ phone}, { email }]
+            $or: [{ phone }, { email }]
         });
 
         if (existingClient) {
             return res.status(400).json({
-                error: 'Client with this phone number or email already exists',
+                success: false,
+                message: 'Client with this phone number or email already exists',
             });
         }
 
@@ -51,47 +338,69 @@ export const createClient = async (req, res) => {
 
         const durationMap = {
             "monthly": 1,
-            "3-month": 3,
-            "6-month": 6,
+            "3-months": 3,
+            "6-months": 6,
+            
         };
-        // const endDate = startDate.add(durationMap[membershipType], 'month');
 
-        const duration = durationMap[membershipType.toLowerCase()];
+        const membershipTypeLower = membershipType.toLowerCase();
+        const duration = durationMap[membershipTypeLower];
         if (!duration) {
             return res.status(400).json({
                 success: false,
-                message: 'Invalid membership type. Choose from monthly, 3-month, or 6-month.',
+                message: 'Invalid membership type. Choose from monthly, 3-months, 6-months.',
             });
         }
         const endDate = startDate.add(duration, 'month');
 
-        //upload Image to Cloudinary
-        const clientImage = await uploadImageToCloudinary(image, process.env.Folder_NAME);
+        // Upload Image to Cloudinary
+        let clientImage;
+        try {
+            clientImage = await uploadImageToCloudinary(image, process.env.FOLDER_NAME);
+        } catch (uploadError) {
+            console.error('Error uploading image:', uploadError);
+            return res.status(500).json({
+                success: false,
+                message: 'Error uploading client image'
+            });
+        }
 
         const newClient = new Client({
             name,
             phone,
             email,
             birthday,
+            age: age || null,
+            weight: weight || null,
+            address: address || null,
+            aadharNumber: aadharNumber || null,
+            medicalProblems: medicalProblems || null,
             membershipType,
             membershipStartDate: startDate.toDate(),
             membershipEndDate: endDate.toDate(),
-            personalTrainer,
-            totalPaid,
+            personalTrainer: personalTrainer || false,
+            totalPaid: Number(totalPaid),
             image: clientImage.secure_url,
-            dueAmount,
+            dueAmount: Number(dueAmount),
             status: status || 'active',
         });
 
         await newClient.save();
-        res.status(201).json({ message: 'Client created successfully', client: newClient });
+        res.status(201).json({ 
+            success: true,
+            message: 'Client created successfully', 
+            client: newClient 
+        });
     } catch (error) {
         console.error('Error creating client:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ 
+            success: false,
+            message: 'Internal Server Error',
+            error: error.message 
+        });
     }
 };
 
-// Get All Clients
 export const getClients = async (req, res) => {
     try {
         const clients = await Client.find();
@@ -105,81 +414,270 @@ export const getClients = async (req, res) => {
 export const getClientById = async (req, res) => {
     try {
         const { id } = req.params;
+        
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'Invalid client ID'
+            });
+        }
+        
         const client = await Client.findById(id);
 
-        if (!client) return res.status(404).json({ message: 'Client not found' });
+        if (!client) {
+            return res.status(404).json({ 
+                success: false,
+                message: 'Client not found' 
+            });
+        }
 
-        res.status(200).json(client);
+        res.status(200).json({
+            success: true,
+            client
+        });
     } catch (error) {
         console.error('Error fetching client:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ 
+            success: false,
+            message: 'Internal Server Error',
+            error: error.message 
+        });
     }
 };
 
 // Update Client
 export const updateClient = async (req, res) => {
     try {
-        const client = await Client.findByIdAndUpdate(req.params.id, req.body, { new: true}
+        const { id } = req.params;
+        
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'Invalid client ID'
+            });
+        }
+        
+        const clientExists = await Client.findById(id);
+        if (!clientExists) {
+            return res.status(404).json({ 
+                success: false,
+                message: 'Client not found' 
+            });
+        }
+        
+        // Handle membership date updates
+        if (req.body.membershipType && req.body.membershipStartDate) {
+            const startDate = dayjs(req.body.membershipStartDate);
+            if (!startDate.isValid()) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid membership start date.'
+                });
+            }
+            
+            const durationMap = {
+                "monthly": 1,
+                "3-months": 3,
+                "6-months": 6,
+                
+            };
+            
+            const membershipTypeLower = req.body.membershipType.toLowerCase();
+            const duration = durationMap[membershipTypeLower];
+            
+            if (!duration) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid membership type. Choose from monthly, 3-months, 6-months.',
+                });
+            }
+            
+            req.body.membershipEndDate = startDate.add(duration, 'month').toDate();
+        }
+        
+        // Handle image update if provided
+        if (req.files && req.files.clientImage) {
+            try {
+                const image = req.files.clientImage;
+                const clientImage = await uploadImageToCloudinary(image, process.env.FOLDER_NAME);
+                req.body.image = clientImage.secure_url;
+            } catch (uploadError) {
+                console.error('Error uploading image:', uploadError);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Error uploading client image'
+                });
+            }
+        }
+        
+        const client = await Client.findByIdAndUpdate(
+            id, 
+            req.body, 
+            { new: true, runValidators: true }
         );
-        if (!client) return res.status(404).json({ message: 'Client not found' });
-        res.status(200).json(client);
+        
+        res.status(200).json({
+            success: true,
+            message: 'Client updated successfully',
+            client
+        });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        console.error('Error updating client:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Internal Server Error',
+            error: error.message 
+        });
     }
 };
 
-//Delete Client
+// Delete Client
 export const deleteClient = async (req, res) => {
     try {
         const { id } = req.params;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ error: "Invalid client ID"});
+            return res.status(400).json({ 
+                success: false,
+                message: 'Invalid client ID'
+            });
         }
 
         const client = await Client.findByIdAndDelete(id);
-        if (!client) return res.status(404).json({ message: 'Client not found '});
+        
+        if (!client) {
+            return res.status(404).json({ 
+                success: false,
+                message: 'Client not found'
+            });
+        }
 
-        res.status(200).json({ message: 'Client removed' });
+        res.status(200).json({ 
+            success: true,
+            message: 'Client removed successfully' 
+        });
     } catch (error) {
         console.error('Error deleting client:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ 
+            success: false,
+            message: 'Internal Server Error',
+            error: error.message 
+        });
     }
 };
 
-// Get Clients Upcoming Birthday
+// Get Clients with Upcoming Birthdays
+// export const getUpComingBirthdays = async (req, res) => {
+//     try {
+//         const today = dayjs();
+//         const nextWeek = today.add(7, 'day');
+        
+//         // Days range configurable from query params
+//         const daysRange = parseInt(req.query.days) || 7;
+//         const configuredEndDate = today.add(daysRange, 'day');
+
+//         const clients = await Client.aggregate([
+//             {
+//                 $addFields: {
+//                     birthdayMonthDay: {
+//                         $dateToString: { format: "%m-%d", date: "$birthday" },
+//                     },
+//                 },
+//             },
+//             {
+//                 $match: {
+//                     status: "active",
+//                     birthdayMonthDay: {
+//                         $gte: today.format("MM-DD"),
+//                         $lte: configuredEndDate.format("MM-DD"),
+//                     },
+//                 },
+//             },
+//             {
+//                 $sort: {
+//                     birthdayMonthDay: 1
+//                 }
+//             }
+//         ]);
+
+//         res.status(200).json({
+//             success: true,
+//             count: clients.length,
+//             clients
+//         });
+//     } catch (error) {
+//         console.error('Error fetching upcoming birthdays:', error);
+//         res.status(500).json({ 
+//             success: false,
+//             message: 'Internal Server Error',
+//             error: error.message 
+//         });
+//     }
+// };
+
 export const getUpComingBirthdays = async (req, res) => {
-    try {
-        const today = dayjs();
-        const nextWeek = today.add(7, 'day');
-
-        const clients = await Client.aggregate([
-            {
-                $addFields: {
-                    birthdayMonthDay: {
-                        $dateToString: { format: "%m-%d", date: "$birthday" },
+        try {
+            const today = dayjs();
+            const nextWeek = today.add(7, 'day');
+    
+            const clients = await Client.aggregate([
+                {
+                    $addFields: {
+                        birthdayMonthDay: {
+                            $dateToString: { format: "%m-%d", date: "$birthday" },
+                        },
                     },
                 },
-            },
-            {
-                $match: {
-                    status: "active",
-                    birthdayMonthDay: {
-                        $gte: today.format("MM-DD"),
-                        $lte: nextWeek.format("MM-DD"),
+                {
+                    $match: {
+                        status: "active",
+                        birthdayMonthDay: {
+                            $gte: today.format("MM-DD"),
+                            $lte: nextWeek.format("MM-DD"),
+                        },
                     },
                 },
-            },
-        ]);
+            ]);
+    
+            res.status(200).json(clients);
+        } catch (error) {
+            console.error('Error fetching upcoming birthday:', error);
+            res.status(500).json({ message: error.message });
+        }
+    };
 
-        res.status(200).json(clients);
-    } catch (error) {
-        console.error('Error fetching upcoming birthday:', error);
-        res.status(500).json({ message: error.message });
-    }
-};
+// Get upcoming membership End Dates (Due Renewals)
+// export const getUpcomingMembershipDue = async (req, res) => {
+//     try {
+//         const today = dayjs().startOf('day');
+        
+//         // Days range configurable from query params
+//         const daysRange = parseInt(req.query.days) || 7;
+//         const nextDays = today.add(daysRange, 'day').endOf('day');
 
-// get upcoming membership End Dates (Due Renewals)
+//         const clients = await Client.find({
+//             status: 'active',
+//             membershipEndDate: {
+//                 $gte: today.toDate(),
+//                 $lte: nextDays.toDate(),
+//             },
+//         }).sort({ membershipEndDate: 1 });
+
+//         res.status(200).json({
+//             success: true,
+//             count: clients.length,
+//             clients
+//         });
+//     } catch (error) {
+//         console.error('Error fetching upcoming due memberships:', error);
+//         res.status(500).json({ 
+//             success: false,
+//             message: 'Internal Server Error',
+//             error: error.message 
+//         });
+//     }
+// };
+
 export const getUpcomingMembershipDue = async (req, res) => {
     try {
         const today = dayjs().startOf('day');
@@ -200,7 +698,6 @@ export const getUpcomingMembershipDue = async (req, res) => {
     }
 };
 
-// Get Clients with Due Payments
 export const getClientsWithDuePayments = async (req, res) => {
     try {
         const clients = await Client.find({
@@ -215,16 +712,38 @@ export const getClientsWithDuePayments = async (req, res) => {
     }
 };
 
-
-//Get Active Clients
-
+// Get Active Clients
 export const getActiveClients = async (req, res) => {
     try {
-        const activeClients = await Client.find({ status: 'active' });
-        res.status(200).json(activeClients);
+        // Add pagination
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+        
+        const activeClients = await Client.find({ status: 'active' })
+            .sort({ membershipStartDate: -1 })
+            .skip(skip)
+            .limit(limit);
+            
+        const total = await Client.countDocuments({ status: 'active' });
+        
+        res.status(200).json({
+            success: true,
+            count: total,
+            clients: activeClients,
+            pagination: {
+                page,
+                pages: Math.ceil(total / limit),
+                limit
+            }
+        });
     } catch (error) {
         console.error('Error fetching active clients:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ 
+            success: false,
+            message: 'Internal Server Error',
+            error: error.message 
+        });
     }
 };
 
@@ -241,7 +760,8 @@ export const getClientByMembershipType = async (req, res) => {
                 $group: {
                     _id: "$membershipType",
                     clients: { $push: "$$ROOT" },
-                    count: { $sum: 1}
+                    count: { $sum: 1 },
+                    totalRevenue: { $sum: "$totalPaid" }
                 }
             },
             {
@@ -249,83 +769,130 @@ export const getClientByMembershipType = async (req, res) => {
                     membershipType: "$_id",
                     clients: 1,
                     count: 1,
+                    totalRevenue: 1,
                     _id: 0
+                }
+            },
+            {
+                $sort: {
+                    count: -1
                 }
             }
         ]);
-        res.status(200).json(groupedClients);
+        
+        res.status(200).json({
+            success: true,
+            data: groupedClients
+        });
     } catch (error) {
         console.error("Error fetching clients by membership type:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+        res.status(500).json({ 
+            success: false,
+            message: "Internal Server Error",
+            error: error.message
+        });
     }
 };
-
 
 // Get New Joinings by Month
 export const getMonthlyJoinings = async (req, res) => {
     try {
-        const { startDate, endDate } = req.query;
+        const startDate = req.query.startDate ? new Date(req.query.startDate) : new Date(new Date().getFullYear(), 0, 1);
+        const endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
+        
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid date format. Please use YYYY-MM-DD format."
+            });
+        }
 
         const match = {
-            status: "active"
+            status: "active",
+            membershipStartDate: {
+                $gte: startDate,
+                $lte: endDate
+            }
         };
 
-        if (startDate && endDate) {
-            match.membershipStartDate = {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate)
-            };
-        }
-
-    const Joinings = await Client.aggregate([
-        { $match: match },
-        {
-            $group: {
-                _id: {
-                    year: { $year: "$membershipStartDate" },
-                    month: { $month: "$membershipStartDate"}
-                },
-                newJoinings: { $sum: 1 }
+        const joinings = await Client.aggregate([
+            { $match: match },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$membershipStartDate" },
+                        month: { $month: "$membershipStartDate" }
+                    },
+                    newJoinings: { $sum: 1 },
+                    revenue: { $sum: "$totalPaid" }
+                }
+            },
+            { $sort: { "_id.year": 1, "_id.month": 1 } },
+            {
+                $project: {
+                    month: {
+                        $concat: [
+                            { $toString: "$_id.month" },
+                            "-",
+                            { $toString: "$_id.year" }
+                        ]
+                    },
+                    newJoinings: 1,
+                    revenue: 1,
+                    _id: 0
+                }
             }
-        },
-        { $sort: { "_id.year": 1, "_id": 1 } },
-        {
-            $project: {
-                month: {
-                    $concat: [
-                        { $toString: "$_id.month" },
-                        "-",
-                        { $toString: "$_id.year" }
-                    ]
-                },
-                newJoinings: 1,
-                _id: 0
-            }
-        }
-    ]);
-    res.status(200).json(Joinings);
+        ]);
+        
+        res.status(200).json({
+            success: true,
+            timeframe: {
+                from: startDate,
+                to: endDate
+            },
+            data: joinings
+        });
     } catch (error) {
         console.error("Error fetching monthly joinings:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+        res.status(500).json({ 
+            success: false,
+            message: "Internal Server Error",
+            error: error.message
+        });
     }
 };
 
 // Get Monthly Revenue
 export const getMonthlyRevenue = async (req, res) => {
     try {
+        const startDate = req.query.startDate ? new Date(req.query.startDate) : new Date(new Date().getFullYear(), 0, 1);
+        const endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
+        
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid date format. Please use YYYY-MM-DD format."
+            });
+        }
+        
+        const match = {
+            status: "active",
+            membershipStartDate: {
+                $gte: startDate,
+                $lte: endDate
+            }
+        };
+        
         const revenue = await Client.aggregate([
-            {
-                $match: {
-                    status: "active"
-                }
-            },
+            { $match: match },
             {
                 $group: {
                     _id: {
-                        year: { $year: "$membershipStartDate"},
-                        month: { $month: "$membershipStartDate"}
+                        year: { $year: "$membershipStartDate" },
+                        month: { $month: "$membershipStartDate" }
                     },
-                    totalRevenue: { $sum: "$totalPaid"},
+                    totalRevenue: { $sum: "$totalPaid" },
+                    totalDue: { $sum: "$dueAmount" },
                     clients: { $sum: 1 }
                 }
             },
@@ -341,18 +908,59 @@ export const getMonthlyRevenue = async (req, res) => {
                         $concat: [
                             { $toString: "$_id.month" },
                             "-",
-                            { $toString: "$_id.year"}
+                            { $toString: "$_id.year" }
                         ]
                     },
                     totalRevenue: 1,
+                    totalDue: 1,
                     clients: 1,
                     _id: 0
                 }
             }
         ]);
-        res.status(200).json(revenue);
+        
+        // Calculate totals
+        const totals = {
+            totalRevenue: revenue.reduce((sum, item) => sum + item.totalRevenue, 0),
+            totalDue: revenue.reduce((sum, item) => sum + item.totalDue, 0),
+            totalClients: revenue.reduce((sum, item) => sum + item.clients, 0)
+        };
+        
+        res.status(200).json({
+            success: true,
+            timeframe: {
+                from: startDate,
+                to: endDate
+            },
+            totals,
+            data: revenue
+        });
     } catch (error) {
         console.error("Error calculating monthly revenue:", error);
-        res.status(500).json({ message: "Internal Server Error"});
+        res.status(500).json({ 
+            success: false,
+            message: "Internal Server Error",
+            error: error.message
+        });
     }
+};
+
+// PATCH /api/clients/:id/mark-paid
+export const markClientAsPaid = async (req, res) => {
+  try {
+    const clientId = req.params.id;
+    const client = await Client.findById(clientId);
+
+    if (!client) {
+      return res.status(404).json({ message: 'Client not found' });
+    }
+
+    client.dueAmount = 0;
+    await client.save();
+
+    res.status(200).json({ message: 'Payment marked as paid successfully' });
+  } catch (error) {
+    console.error('Error updating client payment status:', error);
+    res.status(500).json({ message: error.message });
+  }
 };

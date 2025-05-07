@@ -1,125 +1,229 @@
 import { createContext, useState, useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { mockClients } from '../data/mockData'
+import axios from 'axios';
+
 
 export const ClientContext = createContext()
 
 export const ClientProvider = ({ children }) => {
-  const [clients, setClients] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const API_URL = import.meta.env.VITE_API_URL;
+
+
+  const fetchClients = async  () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('energygym_token');
+      console.log('Token used for request:', token);
+      const response = await axios.get(`${API_URL}/getClients`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setClients(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Failed to fetch clients:', error);
+    } finally {
+      setLoading(false);
+    }
+  }; 
 
   useEffect(() => {
-    // Load clients from localStorage or use mock data
-    const storedClients = localStorage.getItem('energygym_clients')
-    
-    if (storedClients) {
-      setClients(JSON.parse(storedClients))
-    } else {
-      setClients(mockClients)
-      localStorage.setItem('energygym_clients', JSON.stringify(mockClients))
+    fetchClients();
+  }, []);
+
+  // hope
+  const addClient = async (clientData) => {
+    try {
+      const token = localStorage.getItem('energygym_token');
+  
+      const isFormData = clientData instanceof FormData;
+  
+      const response = await axios.post(`${API_URL}/createClient`, clientData, {
+        headers: {
+          ...(isFormData
+            ? { 'Content-Type': 'multipart/form-data' }
+            : { 'Content-Type': 'application/json' }),
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      setClients((prev) => [...prev, response.data.client]);
+      return response.data.client;
+    } catch (error) {
+      console.error('Error adding client:', error);
+      throw error;
     }
-    
-    setLoading(false)
-  }, [])
+  };
+  
+  
 
-  // Save clients to localStorage whenever they change
-  useEffect(() => {
-    if (!loading) {
-      localStorage.setItem('energygym_clients', JSON.stringify(clients))
+  const updateClient = async (id, updateData) => {
+    try {
+      const token = localStorage.getItem('energygym_token');
+      const response = await axios.put(`${API_URL}/${id}`, updateData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+
+      setClients((prev) =>
+        prev.map((client) => (client._id === id ? response.data : client))
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error updating client:', error);
+      throw error;
     }
-  }, [clients, loading])
+  };
 
-  const addClient = (client) => {
-    const newClient = {
-      ...client,
-      id: uuidv4(),
-      joiningDate: new Date().toISOString(),
-      status: client.status || 'Active'
+  const deleteClient = async (id) => {
+    try {
+      const token = localStorage.getItem('energygym_token');
+      await axios.delete(`${API_URL}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setClients((prev) => prev.filter((client) =>client._id !== id));
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      throw error;
     }
-    
-    setClients(prevClients => [...prevClients, newClient])
-    return newClient
-  }
+  };
 
-  const updateClient = (id, updatedClient) => {
-    setClients(prevClients => 
-      prevClients.map(client => 
-        client.id === id ? { ...client, ...updatedClient } : client
-      )
-    )
-  }
+  const getMonthlyJoinings = async (startDate, endDate) => {
+    try {
+      const token = localStorage.getItem('energygym_token');
+      const response = await axios.get(`${API_URL}/joining`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        params: { 
+          startDate: startDate,
+          endDate: endDate 
+        }
+      });
 
-  const deleteClient = (id) => {
-    setClients(prevClients => 
-      prevClients.filter(client => client.id !== id)
-    )
-  }
+      console.log('Monthly joinings data:', response.data);
 
-  const getClient = (id) => {
-    return clients.find(client => client.id === id)
-  }
+      return response.data || [];
+    } catch (error) {
+      console.error('Error fetching monthly joinings:', error);
+
+      // Check the specific error
+    if (error.response) {
+      console.error('Response error data:', error.response.data);
+      console.error('Response error status:', error.response.status);
+    }
+
+      return [];
+    }
+  };
+  
+  const getClientsWithDuePayments = async () => {
+    try {
+      const token = localStorage.getItem('energygym_token');
+      const response = await axios.get(`${API_URL}/due-payment`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      console.log('Clients with due payments:', response.data);
+      return response.data || [];
+    } catch (error) {
+      console.error('Error fetching clients with due payments:', error);
+      
+      if (error.response) {
+        console.error('Response error data:', error.response.data);
+        console.error('Response error status:', error.response.status);
+      }
+      
+      return [];
+    }
+  };
+
+  const getClient = (id) => clients.find(client => client._id === id);
 
   const getActiveClients = () => {
-    return clients.filter(client => client.status === 'Active')
-  }
+    return clients.filter((client) => client.status?.toLowerCase() === 'active' );
+  };
 
   const getTotalFeesCollected = () => {
-    // Calculate based on subscription type
     return clients.reduce((total, client) => {
-      if (client.status !== 'Active') return total
-      
-      let fees = 0
-      switch (client.subscriptionType) {
-        case 'Monthly':
-          fees = 1500
-          break
-        case '3 Months':
-          fees = 4000
-          break
-        case '6 Months':
-          fees = 7500
-          break
-        default:
-          fees = 0
-      }
-      
-      // Add personal trainer fees if applicable
-      if (client.personalTrainer === 'Yes') {
-        fees += 2000
-      }
-      
-      return total + fees
-    }, 0)
-  }
+      if(client.status !== 'active') return total;
+      return total + (client.totalPaid || 0);
+    }, 0);
+  };
 
-  const getUpcomingRenewals = () => {
-    const today = new Date()
-    const thirtyDaysFromNow = new Date(today)
-    thirtyDaysFromNow.setDate(today.getDate() + 30)
-    
-    return clients.filter(client => {
-      if (client.status !== 'Active') return false
-      
-      const joinDate = new Date(client.joiningDate)
-      let renewalDate = new Date(joinDate)
-      
-      switch (client.subscriptionType) {
-        case 'Monthly':
-          renewalDate.setMonth(joinDate.getMonth() + 1)
-          break
-        case '3 Months':
-          renewalDate.setMonth(joinDate.getMonth() + 3)
-          break
-        case '6 Months':
-          renewalDate.setMonth(joinDate.getMonth() + 6)
-          break
-        default:
-          return false
+  const markClientAsPaid = async (clientId) => {
+    try {
+      const token = localStorage.getItem('energygym_token');
+      const response = await axios.patch(`${API_URL}/${clientId}/mark-paid`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+  
+      return response.data;
+    } catch (error) {
+      console.error('Error marking client as paid:', error);
+      throw error;
+    }
+  };
+  
+
+  const getClientsWithUpcomingRenewals = async () => {
+    try {
+      const token = localStorage.getItem('energygym_token');
+      const response = await axios.get(`${API_URL}/due-memberships`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+  
+      console.log('Clients with upcoming renewals:', response.data);
+      return response.data || [];
+    } catch (error) {
+      console.error('Error fetching upcoming renewals:', error);
+  
+      if (error.response) {
+        console.error('Response error data:', error.response.data);
+        console.error('Response error status:', error.response.status);
       }
-      
-      return renewalDate <= thirtyDaysFromNow && renewalDate >= today
-    })
-  }
+  
+      return [];
+    }
+  };
+  
+  const getUpcomingBirthdays = async () => {
+    try {
+      const token = localStorage.getItem('energygym_token');
+      const response = await axios.get(`${API_URL}/birthday`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      console.log('Clients with upcoming birthdays:', response.data);
+      return response.data || [];
+    } catch (error) {
+      console.error('Error fetching upcoming birthdays:', error);
+  
+      if (error.response) {
+        console.error('Response error data:', error.response.data);
+        console.error('Response error status:', error.response.status);
+      }
+  
+      return [];
+    }
+  };
+  
+
 
   const value = {
     clients,
@@ -130,7 +234,12 @@ export const ClientProvider = ({ children }) => {
     getClient,
     getActiveClients,
     getTotalFeesCollected,
-    getUpcomingRenewals
+    getClientsWithUpcomingRenewals,
+    fetchClients,
+    getMonthlyJoinings,
+    getClientsWithDuePayments,
+    getUpcomingBirthdays,
+    markClientAsPaid,
   }
 
   return (
@@ -139,3 +248,4 @@ export const ClientProvider = ({ children }) => {
     </ClientContext.Provider>
   )
 }
+

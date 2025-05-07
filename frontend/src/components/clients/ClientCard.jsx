@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { FaEdit, FaTrash, FaEye, FaSms } from 'react-icons/fa'
-import { format } from 'date-fns'
+import { format, isValid } from 'date-fns'
 import { useNavigate } from 'react-router-dom'
 import { useNotification } from '../../hooks/useNotification'
 import Modal from '../ui/Modal'
@@ -12,7 +12,7 @@ const ClientCard = ({ client, onEdit, onDelete }) => {
   const [smsMessage, setSmsMessage] = useState('')
   
   const handleView = () => {
-    navigate(`/clients/${client.id}`)
+    navigate(`/clients/${client._id}`)
   }
   
   const handleSendSMS = () => {
@@ -28,6 +28,34 @@ const ClientCard = ({ client, onEdit, onDelete }) => {
     setShowSMSModal(false)
   }
   
+  // Format date safely
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Not available';
+    const date = new Date(dateString);
+    if (isValid(date)) {
+      return format(date, 'MMM d, yyyy');
+    }
+    return 'Invalid date';
+  };
+
+  // Calculate age if birthday is available
+  const calculateAge = (birthdayString) => {
+    if (!birthdayString) return 'Not provided';
+    
+    const birthday = new Date(birthdayString);
+    if (!isValid(birthday)) return 'Invalid date';
+    
+    const today = new Date();
+    let age = today.getFullYear() - birthday.getFullYear();
+    const monthDiff = today.getMonth() - birthday.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthday.getDate())) {
+      age--;
+    }
+    
+    return `${age} years`;
+  };
+
   return (
     <>
       <div className="bg-secondary-light rounded-lg shadow-xl overflow-hidden transform hover:-translate-y-1 transition-all duration-300 relative group">
@@ -35,7 +63,7 @@ const ClientCard = ({ client, onEdit, onDelete }) => {
         
         <div className="absolute top-4 right-4 z-10">
           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-            client.status === 'Active' 
+            client.status === 'active' 
               ? 'bg-green-100 text-green-600 border border-green-600'
               : 'bg-red-100 text-red-600 border border-red-600'
           }`}>
@@ -45,7 +73,7 @@ const ClientCard = ({ client, onEdit, onDelete }) => {
         
         <div className="h-48 relative overflow-hidden">
           <img 
-            src={client.picture} 
+            src={client.image} 
             alt={client.name}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
@@ -54,25 +82,29 @@ const ClientCard = ({ client, onEdit, onDelete }) => {
         <div className="p-6">
           <h3 className="text-xl font-semibold text-white mb-2">{client.name}</h3>
           <p className="text-primary text-sm mb-4">
-            Joined: {format(new Date(client.joiningDate), 'MMM d, yyyy')}
+            Joined: {formatDate(client.membershipStartDate)}
           </p>
           
           <div className="space-y-2 text-gray-300">
             <div className="flex justify-between">
               <span>Age:</span>
-              <span>{client.age} years</span>
+              {/* <span>{client.age} years</span> */}
+              <span>{client.birthday ? calculateAge(client.birthday) : 'Not provided' }</span>
             </div>
             <div className="flex justify-between">
               <span>Phone:</span>
-              <span>{client.phone}</span>
+              {/* <span>{client.phone}</span> */}
+              <span>{client.phone }</span>
             </div>
             <div className="flex justify-between">
               <span>Subscription:</span>
-              <span>{client.subscriptionType}</span>
+              {/* <span>{client.subscriptionType}</span> */}
+              <span>{client.membershipType}</span>
             </div>
             <div className="flex justify-between">
               <span>Trainer:</span>
-              <span>{client.personalTrainer}</span>
+              {/* <span>{client.personalTrainer}</span> */}
+              <span>{client.personalTrainer ? 'Yes' : 'No'}</span>
             </div>
           </div>
           
@@ -99,7 +131,7 @@ const ClientCard = ({ client, onEdit, onDelete }) => {
               <FaEdit size={18} />
             </button>
             <button 
-              onClick={() => onDelete(client.id)}
+              onClick={() => onDelete(client._id)}
               className="p-2 text-red-500 hover:bg-red-500 hover:bg-opacity-20 rounded-full transition-colors"
               title="Delete Client"
             >

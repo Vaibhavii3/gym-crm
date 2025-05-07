@@ -84,6 +84,22 @@ const Avatar = styled.img`
   }
 `
 
+// const ProfileDropdown = styled.div`
+//   position: absolute;
+//   top: 50px;
+//   right: 0;
+//   background-color: var(--secondary-light);
+//   border-radius: var(--border-radius);
+//   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+//   width: 200px;
+//   z-index: 10;
+//   overflow: hidden;
+//   visibility: ${props => props.$show ? 'visible' : 'hidden'};
+//   opacity: ${props => props.$show ? 1 : 0};
+//   transform: translateY(${props => props.$show ? '0' : '-10px'});
+//   transition: all 0.3s ease;
+// `
+
 const ProfileDropdown = styled.div`
   position: absolute;
   top: 50px;
