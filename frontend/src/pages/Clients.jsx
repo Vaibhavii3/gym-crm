@@ -655,7 +655,7 @@ const Clients = () => {
       setLoading(true)
       // In a real app, you'd fetch detailed client data
       const token = localStorage.getItem('energygym_token');
-      const response = await axios.get(`http://localhost:5000/api/v1/clients/${clientId}`, {
+      const response = await axios.get(`${API_URL}/api/v1/clients/${clientId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
