@@ -17,7 +17,7 @@ export const ClientProvider = ({ children }) => {
       setLoading(true);
       const token = localStorage.getItem('energygym_token');
       console.log('Token used for request:', token);
-      const response = await axios.get(`${API_URL}api/v1/clients/getClients`, {
+      const response = await axios.get(`${API_URL}/api/v1/clients/getClients`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
