@@ -160,10 +160,12 @@ export const ClientProvider = ({ children }) => {
     }, 0);
   };
 
+  // const markClientAsPaid = async (clientId) => {
   const markClientAsPaid = async (clientId) => {
     try {
       const token = localStorage.getItem('energygym_token');
-      const response = await axios.patch(`${API_URL}/api/v1/clients/${clientId}/mark-paid`, {}, {
+      // const response = await axios.patch(`${API_URL}/api/v1/clients/${clientId}/mark-paid`, {}, {
+      const response = await axios.put(`${API_URL}/api/v1/clients/mark-paid/${clientId}`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -203,7 +205,7 @@ export const ClientProvider = ({ children }) => {
   const getUpcomingBirthdays = async () => {
     try {
       const token = localStorage.getItem('energygym_token');
-      const response = await axios.get(`${API_URL}api/v1/clients/birthday`, {
+      const response = await axios.get(`${API_URL}/api/v1/clients/birthday`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
