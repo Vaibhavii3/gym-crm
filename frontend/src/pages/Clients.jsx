@@ -578,6 +578,8 @@ const Clients = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [filter, setFilter] = useState('all')
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   // Fetch clients from your backend API
   useEffect(() => {
     const getClients = async () => {
@@ -585,7 +587,7 @@ const Clients = () => {
         setLoading(true)
         const token = localStorage.getItem('energygym_token');
       console.log('Token used for request:', token);
-      const response = await axios.get('http://localhost:5000/api/v1/clients/getClients', {
+      const response = await axios.get(`${API_URL}/api/v1/clients/getClients`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
