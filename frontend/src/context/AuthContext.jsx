@@ -1,6 +1,8 @@
 import { createContext, useState, useEffect } from 'react'
 // import { mockAdmin } from '../data/mockData'
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
@@ -20,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await fetch('http://localhost:5000/api/v1/admin/login', {
+      const res = await fetch(`${API_URL}/admin/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
