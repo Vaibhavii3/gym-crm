@@ -51,89 +51,12 @@ const ClientForm = ({ client, onClose }) => {
     }
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     let result;
-
-  //     if (client?._id) {
-  //       // Update client
-  //       const updateForm = new FormData();
-  //       Object.entries(formData).forEach(([key, value]) => {
-  //         updateForm.append(key, value);
-  //       });
-  //       updateForm.append('clientImage', formData.image);
-  //       result = await updateClient(client._id, updateForm);
-  //     } else {
-  //       // Add new client
-  //       result = await addClient({
-  //         ...formData,
-  //         clientImage: formData.image,
-  //       });
-  //     }
-
-  //     addNotification({
-  //       type: 'client',
-  //       title: client ? 'Client Updated' : 'New Client',
-  //       message: `${formData.name}'s info ${client ? 'updated' : 'added'}.`,
-  //     });
-
-  //     onClose();
-  //   } catch (err) {
-  //     console.error('Error submitting form:', err);
-  //     addNotification({
-  //       type: 'error',
-  //       title: 'Error',
-  //       message: err.message || 'There was an issue saving the client.',
-  //     });
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Form Data before submitting:', formData);
 
     try {
       const data = new FormData();
-  
-      // Append all fields except 'image' (we handle that separately)
-    //   Object.entries(formData).forEach(([key, value]) => {
-    //     // Avoid double appending 'image' here
-    //     if (key !== 'image') {
-    //       console.log(`Appending ${key}: ${value}`);
-    //       data.append(key, value);
-    //     }
-    //   });
-  
-    //   // Ensure image is appended correctly with the name expected in backend (clientImage)
-    //   if (formData.image) {
-    //     console.log('Appending image:', formData.image);
-    //     data.append('clientImage', formData.image);
-    //   }
-  
-    //   // Decide between update or create
-    //   const result = client?._id
-    //     ? await updateClient(client._id, data)
-    //     : await addClient(data);
-  
-    //     console.log('Result from API call:', result);
-
-    //   addNotification({
-    //     type: 'client',
-    //     title: client ? 'Client Updated' : 'New Client',
-    //     message: `${formData.name}'s info ${client ? 'updated' : 'added'}.`,
-    //   });
-  
-    //   onClose();
-    // } catch (err) {
-    //   console.error('Error submitting form:', err);
-    //   addNotification({
-    //     type: 'error',
-    //     title: 'Error',
-    //     message: err.message || 'There was an issue saving the client.',
-    //   });
-    // }
 
      // Append all fields except 'image' and handle special cases
      Object.entries(formData).forEach(([key, value]) => {
@@ -232,8 +155,6 @@ const ClientForm = ({ client, onClose }) => {
             id="clientImage"
             name="clientImage"
             accept='image/*'
-            // value={formData.image}
-            // onChange={handleChange}
             onChange={(e) => setFormData(prev => ({
               ...prev,
               image: e.target.files[0] // just store the File object
@@ -324,10 +245,6 @@ const ClientForm = ({ client, onClose }) => {
             <option value="inactive">Inactive</option>
           </select>
         </div>
-
-
-        
-        {/* Add all other form fields with similar styling */}
         
         <div className="col-span-2 flex justify-end space-x-4 mt-6 pt-6 border-t border-gray-700">
           <button

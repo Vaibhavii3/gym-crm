@@ -249,45 +249,6 @@ const IdBadge = styled.span`
   font-family: monospace;
 `
 
-// Additional styled components for the metadata section
-// const MetadataSection = styled.div`
-//   margin-top: 30px;
-//   padding: 12px;
-//   border-radius: 8px;
-//   background-color: rgba(0, 0, 0, 0.03);
-//   border: 1px dashed rgba(255, 215, 0, 0.3);
-// `
-
-// const MetadataTitle = styled.h4`
-//   margin: 0 0 10px;
-//   font-size: 14px;
-//   color: var(--text-light);
-//   opacity: 0.7;
-// `
-
-// const MetadataGrid = styled.div`
-//   display: grid;
-//   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-//   gap: 8px;
-//   font-size: 12px;
-// `
-
-// const MetadataItem = styled.div`
-//   display: flex;
-// `
-
-// const MetadataLabel = styled.span`
-//   min-width: 100px;
-//   color: var(--text-light);
-//   opacity: 0.7;
-// `
-
-// const MetadataValue = styled.span`
-//   color: var(--text-light);
-//   opacity: 0.9;
-//   font-family: monospace;
-// `
-
 // Helper function to safely format dates
 const formatDate = (dateString) => {
   if (!dateString) return 'Not provided';
