@@ -35,7 +35,7 @@ export const createClient = async (req, res) => {
         const image = req.files.clientImage;
 
         // Validation
-        if (!name || !phone || !email || !birthday || !membershipStartDate || !membershipType || totalPaid === undefined || dueAmount === undefined) {
+        if (!name || !phone || !email || !membershipStartDate || !membershipType || totalPaid === undefined || dueAmount === undefined) {
             return res.status(400).json({
                 success: false,
                 message: 'All fields are required',
@@ -95,7 +95,7 @@ export const createClient = async (req, res) => {
             name,
             phone,
             email,
-            birthday,
+            birthday: birthday || null,
             age: age || null,
             weight: weight || null,
             address: address || null,
