@@ -112,7 +112,7 @@ const ClientDetails = () => {
   
   const confirmDelete = () => {
     if (client) {
-      deleteClient(client.id)
+      deleteClient(client._id)
       addNotification({
         type: 'client',
         title: 'Client Deleted',

@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react'
-import { mockAdmin } from '../data/mockData'
+// import { mockAdmin } from '../data/mockData'
 
 export const AuthContext = createContext()
 
@@ -18,35 +18,48 @@ export const AuthProvider = ({ children }) => {
     setLoading(false)
   }, [])
 
-  const login = (email, password) => {
-    return new Promise((resolve, reject) => {
-      // Simulate server request
-      setTimeout(() => {
-        // Check credentials against mock data
-        if (email === mockAdmin.email && password === mockAdmin.password) {
-          const user = {
-            id: mockAdmin.id,
-            name: mockAdmin.name,
-            email: mockAdmin.email,
-            role: mockAdmin.role,
-            avatar: mockAdmin.avatar
-          }
-          
-          setCurrentUser(user)
-          setIsAuthenticated(true)
-          localStorage.setItem('energygym_user', JSON.stringify(user))
-          resolve(user)
-        } else {
-          reject(new Error('Invalid email or password'))
-        }
-      }, 800)
-    })
-  }
+  const login = async (email, password) => {
+    try {
+      const res = await fetch('http://localhost:5000/api/v1/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+  
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Failed to login');
+      }
+  
+      const data = await res.json();
+  
+      const user = {
+        id: data.admin._id,
+        name: data.admin.name,
+        email: data.admin.email,
+        role: 'admin',
+        avatar: ''
+      };
+  
+      setCurrentUser(user);
+      setIsAuthenticated(true);
+      localStorage.setItem('energygym_user', JSON.stringify(user));
+      localStorage.setItem('energygym_token', data.token);
+  
+      return user;
+    } catch (err) {
+      console.error(err.message);
+      throw err;
+    }
+  };
 
   const logout = () => {
     setCurrentUser(null)
     setIsAuthenticated(false)
     localStorage.removeItem('energygym_user')
+    localStorage.removeItem('energygym_token')
   }
 
   const value = {

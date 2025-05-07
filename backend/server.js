@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import bodyParser from 'body-parser';
 import connectDB from './config/db.js';
 import {cloudinaryConnect} from './config/cloudinary.js'
 import fileUpload from 'express-fileupload';
@@ -18,6 +19,7 @@ connectDB();
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.json());
 
 app.use(
     fileUpload({

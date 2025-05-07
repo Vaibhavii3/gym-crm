@@ -14,8 +14,13 @@ const clientSchema = new mongoose.Schema({
         required: true },
 
     birthday: { type: Date },
+    age: { type: Number },
+    weight: { type: Number },
+    address: { type: String },
+    aadharNumber: { type: String },
+    medicalProblems: { type: String },
 
-    membershipType: { type: String },
+    membershipType: { type: String,  enum: ['Monthly', '3-months', '6-months'], default: 'Monthly' },
 
     membershipStartDate: { type: Date },
 
@@ -23,9 +28,9 @@ const clientSchema = new mongoose.Schema({
 
     personalTrainer: { type: Boolean },
 
-    totalPaid: { type: Number },
+    totalPaid: { type: Number, default: 0 },
 
-    dueAmount: { type: Number },
+    dueAmount: { type: Number, default: 0 },
 
     image: { type: String },
 

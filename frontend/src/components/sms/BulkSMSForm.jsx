@@ -256,7 +256,7 @@ const BulkSMSForm = () => {
   
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedClients(filteredClients.map(client => client.id))
+      setSelectedClients(filteredClients.map(client => client._id))
     } else {
       setSelectedClients([])
     }
@@ -283,7 +283,7 @@ const BulkSMSForm = () => {
     // Here we're just simulating the action
     
     const selectedClientNames = clients
-      .filter(client => selectedClients.includes(client.id))
+      .filter(client => selectedClients.includes(client._id))
       .map(client => client.name)
       .join(', ')
     
@@ -371,12 +371,12 @@ const BulkSMSForm = () => {
           
           <ClientList>
             {filteredClients.map(client => (
-              <ClientItem key={client.id}>
+              <ClientItem key={client._id}>
                 <Checkbox
                   type="checkbox"
-                  id={`client-${client.id}`}
-                  checked={selectedClients.includes(client.id)}
-                  onChange={() => handleClientSelect(client.id)}
+                  id={`client-${client._id}`}
+                  checked={selectedClients.includes(client._id)}
+                  onChange={() => handleClientSelect(client._id)}
                 />
                 <ClientImage src={client.picture} alt={client.name} />
                 <ClientInfo>
