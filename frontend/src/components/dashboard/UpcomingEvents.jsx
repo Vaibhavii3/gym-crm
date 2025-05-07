@@ -96,9 +96,9 @@ return aDate - bDate
                   </>
                 ) : (
                   <>
+                  
                     <FaCalendarAlt className="inline mr-2" />
                     Due: {eventDate ? format(eventDate, 'MMM d') : 'Not available'}{' '}
-                    {/* {client.membershipEndDate && `(${client.membershipEndDate})`} */}
                     {client.membershipEndDate && `(${format(new Date(client.membershipEndDate), 'MMM d, yyyy')})`}
                     {/* {!isBirthday && client.duePayments > 0 && 
                       <span className='ml-1 text-yellow-500' >{client.dueAmount}</span>
@@ -110,8 +110,6 @@ return aDate - bDate
               </p>
             </div>
           </div>
-
-          
 
           {/* Show "Mark as Paid" button only for dues */}
         {!isBirthday && (

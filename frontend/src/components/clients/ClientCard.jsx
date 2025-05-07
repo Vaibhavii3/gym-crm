@@ -80,32 +80,34 @@ const ClientCard = ({ client, onEdit, onDelete }) => {
         </div>
         
         <div className="p-6">
+          
           <h3 className="text-xl font-semibold text-white mb-2">{client.name}</h3>
           <p className="text-primary text-sm mb-4">
             Joined: {formatDate(client.membershipStartDate)}
           </p>
           
           <div className="space-y-2 text-gray-300">
+
             <div className="flex justify-between">
               <span>Age:</span>
-              {/* <span>{client.age} years</span> */}
               <span>{client.birthday ? calculateAge(client.birthday) : 'Not provided' }</span>
             </div>
+
             <div className="flex justify-between">
               <span>Phone:</span>
-              {/* <span>{client.phone}</span> */}
               <span>{client.phone }</span>
             </div>
+
             <div className="flex justify-between">
               <span>Subscription:</span>
-              {/* <span>{client.subscriptionType}</span> */}
               <span>{client.membershipType}</span>
             </div>
+
             <div className="flex justify-between">
               <span>Trainer:</span>
-              {/* <span>{client.personalTrainer}</span> */}
               <span>{client.personalTrainer ? 'Yes' : 'No'}</span>
             </div>
+
           </div>
           
           <div className="mt-6 flex justify-end space-x-2 border-t border-gray-700 pt-4">
