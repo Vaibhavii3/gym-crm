@@ -13,7 +13,6 @@ const ClientForm = ({ client, onClose }) => {
   } : {
     name: '',
     email: '',
-    // image: 'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=150',
     image: null,
     age: '',
     weight: '',
@@ -22,7 +21,6 @@ const ClientForm = ({ client, onClose }) => {
     aadharNumber: '',
     membershipType: 'Monthly',
     membershipStartDate: '',
-    // personalTrainer: 'No',
     personalTrainer: false,
     medicalProblems: '',
     birthday: '',
