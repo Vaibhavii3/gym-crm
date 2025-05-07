@@ -601,6 +601,8 @@ export const markClientAsPaid = async (req, res) => {
       return res.status(404).json({ message: 'Client not found' });
     }
 
+    const paidAmount = client.dueAmount;
+    client.totalPaid += paidAmount;
     client.dueAmount = 0;
     await client.save();
 

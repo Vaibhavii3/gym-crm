@@ -34,7 +34,8 @@ router.get('/revenue', getMonthlyRevenue);
 router.get('/:id', getClientById);
 router.put("/:id", updateClient);
 router.delete("/:id", deleteClient);
-router.patch("/:id/mark-paid", markClientAsPaid);
+// router.patch("/:id/mark-paid", markClientAsPaid);
+router.put("/mark-paid/:id", markClientAsPaid);
 
 export default router;
 

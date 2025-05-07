@@ -18,7 +18,7 @@ connectDB();
 const app = express();
 
 app.use(cors({
-    origin: ['https://gym-crm-five.vercel.app'], 
+    origin: ['https://gym-crm-five.vercel.app' , 'http://localhost:5173'], 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true
 }));
