@@ -17,7 +17,7 @@ export const ClientProvider = ({ children }) => {
       setLoading(true);
       const token = localStorage.getItem('energygym_token');
       console.log('Token used for request:', token);
-      const response = await axios.get(`${API_URL}/clients/getClients`, {
+      const response = await axios.get(`${API_URL}api/v1/clients/getClients`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -42,7 +42,7 @@ export const ClientProvider = ({ children }) => {
   
       const isFormData = clientData instanceof FormData;
   
-      const response = await axios.post(`${API_URL}/createClient`, clientData, {
+      const response = await axios.post(`${API_URL}/api/v1/clients/createClient`, clientData, {
         headers: {
           ...(isFormData
             ? { 'Content-Type': 'multipart/form-data' }
@@ -64,7 +64,7 @@ export const ClientProvider = ({ children }) => {
   const updateClient = async (id, updateData) => {
     try {
       const token = localStorage.getItem('energygym_token');
-      const response = await axios.put(`${API_URL}/${id}`, updateData, {
+      const response = await axios.put(`${API_URL}/api/v1/clients/${id}`, updateData, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -83,7 +83,7 @@ export const ClientProvider = ({ children }) => {
   const deleteClient = async (id) => {
     try {
       const token = localStorage.getItem('energygym_token');
-      await axios.delete(`${API_URL}/${id}`, {
+      await axios.delete(`${API_URL}/api/v1/clients/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -98,7 +98,7 @@ export const ClientProvider = ({ children }) => {
   const getMonthlyJoinings = async (startDate, endDate) => {
     try {
       const token = localStorage.getItem('energygym_token');
-      const response = await axios.get(`${API_URL}/joining`, {
+      const response = await axios.get(`${API_URL}/api/v1/clients/joining`, {
         headers: {
           Authorization: `Bearer ${token}`
         },
@@ -127,7 +127,7 @@ export const ClientProvider = ({ children }) => {
   const getClientsWithDuePayments = async () => {
     try {
       const token = localStorage.getItem('energygym_token');
-      const response = await axios.get(`${API_URL}/due-payment`, {
+      const response = await axios.get(`${API_URL}/api/v1/clients/due-payment`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -163,7 +163,7 @@ export const ClientProvider = ({ children }) => {
   const markClientAsPaid = async (clientId) => {
     try {
       const token = localStorage.getItem('energygym_token');
-      const response = await axios.patch(`${API_URL}/${clientId}/mark-paid`, {}, {
+      const response = await axios.patch(`${API_URL}/api/v1/clients/${clientId}/mark-paid`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -180,7 +180,7 @@ export const ClientProvider = ({ children }) => {
   const getClientsWithUpcomingRenewals = async () => {
     try {
       const token = localStorage.getItem('energygym_token');
-      const response = await axios.get(`${API_URL}/due-memberships`, {
+      const response = await axios.get(`${API_URL}/api/v1/clients/due-memberships`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -203,7 +203,7 @@ export const ClientProvider = ({ children }) => {
   const getUpcomingBirthdays = async () => {
     try {
       const token = localStorage.getItem('energygym_token');
-      const response = await axios.get(`${API_URL}/birthday`, {
+      const response = await axios.get(`${API_URL}api/v1/clients/birthday`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
