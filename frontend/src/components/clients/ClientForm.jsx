@@ -143,7 +143,6 @@ const ClientForm = ({ client, onClose }) => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            required
             className="w-full p-3 bg-secondary-light border border-gray-700 rounded-lg text-white focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 transition-all"
           />
         </div>

@@ -182,7 +182,7 @@ export const ClientProvider = ({ children }) => {
   const getClientsWithUpcomingRenewals = async () => {
     try {
       const token = localStorage.getItem('energygym_token');
-      const response = await axios.get(`${API_URL}/api/v1/clients/due-memberships`, {
+      const response = await axios.get(`${API_URL}/api/v1/clients/due-payment`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

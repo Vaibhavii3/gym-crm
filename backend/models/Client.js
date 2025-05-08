@@ -10,8 +10,7 @@ const clientSchema = new mongoose.Schema({
         required: true },
 
     email: { 
-        type: String, 
-        required: true },
+        type: String },
 
     birthday: { type: Date },
     age: { type: Number, default: null },
