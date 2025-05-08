@@ -13,7 +13,7 @@ const Dashboard = () => {
     clients, 
     getActiveClients, 
     getTotalFeesCollected,
-    getUpcomingRenewals,
+    // getUpcomingRenewals,
     getMonthlyJoinings,
     getClientsWithDuePayments,
     getClientsWithUpcomingRenewals,
@@ -23,25 +23,28 @@ const Dashboard = () => {
   const [activeClients, setActiveClients] = useState(0)
   const [totalFees, setTotalFees] = useState(0)
   const [newJoinings, setNewJoinings] = useState(0)
-  const [upcomingRenewals, setUpcomingRenewals] = useState(0)
+  // const [upcomingRenewals, setUpcomingRenewals] = useState(0)
   const [upcomingDues, setUpcomingDues] = useState(0)
   const [upcomingBirthdays, setUpcomingBirthdays] = useState([])
+  const [loading, setLoading] = useState(true);
+
   
   
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true)
       try {
         // Fetch data from API endpoints
         const active = await getActiveClients()
         const total = await getTotalFeesCollected()
         const duePayments = await getClientsWithDuePayments()
-        const renewals = await getClientsWithUpcomingRenewals();
+        // const renewals = await getClientsWithUpcomingRenewals();
         
 
         setActiveClients(active?.length || 0)
         setTotalFees(total || 0)
         setUpcomingDues(duePayments?.length || 0)
-        setUpcomingRenewals(renewals?.length || 0);
+        // setUpcomingRenewals(renewals?.length || 0);
         
 
         // Calculate the date range for last 30 days
@@ -103,13 +106,15 @@ const Dashboard = () => {
 
       } catch (error) {
         console.error('Dashboard data fetch error:', error)
+      } finally {
+        setLoading(false);
       }
     }
 
     if (Array.isArray(clients)) {
       fetchData()
     }
-  }, [clients, getActiveClients, getTotalFeesCollected, getUpcomingRenewals, getMonthlyJoinings, getClientsWithDuePayments, getClientsWithUpcomingRenewals, getUpcomingBirthdays])
+  }, [clients, getActiveClients, getTotalFeesCollected, getMonthlyJoinings, getClientsWithDuePayments, getClientsWithUpcomingRenewals, getUpcomingBirthdays])
   
   return (
     <div className="relative min-h-screen p-6">
@@ -129,7 +134,7 @@ const Dashboard = () => {
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-gray-400 text-sm">Active Clients</p>
-                <h3 className="text-3xl font-bold text-primary mt-2">{activeClients}</h3>
+                <h3 className="text-3xl font-bold text-primary mt-2">{loading ? '...' : activeClients}</h3>
                 <p className="text-sm text-gray-400 mt-1">Total active memberships</p>
               </div>
               <div className="text-primary text-2xl">
@@ -143,7 +148,7 @@ const Dashboard = () => {
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-gray-400 text-sm">Total Revenue</p>
-                <h3 className="text-3xl font-bold text-primary mt-2"> ₹{totalFees.toLocaleString()} </h3>
+                <h3 className="text-3xl font-bold text-primary mt-2"> ₹{ loading ? '...' : `${totalFees.toLocaleString()}`} </h3>
                 <p className="text-sm text-gray-400 mt-1">From active memberships</p>
               </div>
               <div className="text-primary text-2xl">
@@ -157,7 +162,7 @@ const Dashboard = () => {
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-gray-400 text-sm">New Joinings</p>
-                <h3 className="text-3xl font-bold text-primary mt-2">{newJoinings}</h3>
+                <h3 className="text-3xl font-bold text-primary mt-2">{loading ? '...' : newJoinings}</h3>
                 <p className="text-sm text-gray-400 mt-1">Last 30 days</p>
               </div>
               <div className="text-primary text-2xl">
@@ -166,7 +171,7 @@ const Dashboard = () => {
             </div>
           </div>
           
-          <div className="bg-secondary-light rounded-lg p-6 shadow-xl hover:transform hover:-translate-y-1 transition-all">
+          {/* <div className="bg-secondary-light rounded-lg p-6 shadow-xl hover:transform hover:-translate-y-1 transition-all">
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-gray-400 text-sm">Upcoming Renewals</p>
@@ -177,14 +182,14 @@ const Dashboard = () => {
                 <FaCalendarAlt />
               </div>
             </div>
-          </div>
+          </div> */}
           
       
           <div className="bg-secondary-light rounded-lg p-6 shadow-xl hover:transform hover:-translate-y-1 transition-all">
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-gray-400 text-sm">Upcoming Dues</p>
-                <h3 className="text-3xl font-bold text-primary mt-2">{upcomingDues}</h3>
+                <h3 className="text-3xl font-bold text-primary mt-2">{loading ? '...' : upcomingDues}</h3>
                 <p className="text-sm text-gray-400 mt-1">Payments due soon</p>
               </div>
               <div className="text-primary text-2xl">

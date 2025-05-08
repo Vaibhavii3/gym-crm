@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Client from "../models/Client.js";
 import { uploadImageToCloudinary } from "../utils/imageUploader.js";
 import dayjs from 'dayjs';
+import { addMonths, isBefore } from "date-fns";
 
 // Create Client
 export const createClient = async (req, res) => {
@@ -35,22 +36,22 @@ export const createClient = async (req, res) => {
         const image = req.files.clientImage;
 
         // Validation
-        if (!name || !phone || !email || !membershipStartDate || !membershipType || totalPaid === undefined || dueAmount === undefined) {
+        if (!name || !phone || !membershipStartDate || !membershipType || totalPaid === undefined || dueAmount === undefined) {
             return res.status(400).json({
                 success: false,
                 message: 'All fields are required',
             });
         }
 
-        // Check if client with same phone or email already exists
+        // Check if client with same phone already exists
         const existingClient = await Client.findOne({
-            $or: [{ phone }, { email }]
+            $or: [{ phone }]
         });
 
         if (existingClient) {
             return res.status(400).json({
                 success: false,
-                message: 'Client with this phone number or email already exists',
+                message: 'Client with this phone number already exists',
             });
         }
 
@@ -94,7 +95,7 @@ export const createClient = async (req, res) => {
         const newClient = new Client({
             name,
             phone,
-            email,
+            email: email || null,
             birthday: birthday || null,
             age: age || null,
             weight: weight || null,
@@ -351,7 +352,24 @@ export const getClientsWithDuePayments = async (req, res) => {
             dueAmount: { $exists: true, $gt: 0 },
         });
 
-        res.status(200).json(clients);
+        const today = new Date();
+
+        const filteredClients = clients.filter(client => {
+            const durationMap = {
+                "monthly": 1,
+                "3-months": 3,
+                "6-months": 6,
+            };
+            
+            const duration = durationMap[client.membershipType.toLowerCase()] || 0;
+            const membershipEndDate = addMonths(new Date(client.membershipStartDate), duration);
+
+            return membershipEndDate < today
+            
+        });
+
+        // res.status(200).json(clients);
+        res.status(200).json(filteredClients);
     } catch (error) {
         console.error('Error fetching clients with due payments:', error);
         res.status(500).json({ message: error.message });
