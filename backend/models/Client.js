@@ -19,7 +19,7 @@ const clientSchema = new mongoose.Schema({
     aadharNumber: { type: String, default: null },
     medicalProblems: { type: String, default: null },
 
-    membershipType: { type: String,  enum: ['Monthly', '3-months', '6-months'], default: 'Monthly' },
+    membershipType: { type: String,  enum: ['Monthly', '3-months', '6-months', 'Yearly'], default: 'Monthly' },
 
     membershipStartDate: { type: Date },
 
