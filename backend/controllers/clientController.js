@@ -67,6 +67,7 @@ export const createClient = async (req, res) => {
             "monthly": 1,
             "3-months": 3,
             "6-months": 6,
+            "yearly": 12,
             
         };
 
@@ -75,7 +76,7 @@ export const createClient = async (req, res) => {
         if (!duration) {
             return res.status(400).json({
                 success: false,
-                message: 'Invalid membership type. Choose from monthly, 3-months, 6-months.',
+                message: 'Invalid membership type. Choose from monthly, 3-months, 6-months, yearly.',
             });
         }
         const endDate = startDate.add(duration, 'month');
@@ -206,6 +207,7 @@ export const updateClient = async (req, res) => {
                 "monthly": 1,
                 "3-months": 3,
                 "6-months": 6,
+                "yearly": 12,
                 
             };
             
@@ -215,7 +217,7 @@ export const updateClient = async (req, res) => {
             if (!duration) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Invalid membership type. Choose from monthly, 3-months, 6-months.',
+                    message: 'Invalid membership type. Choose from monthly, 3-months, 6-months, yearly.',
                 });
             }
             
@@ -359,6 +361,7 @@ export const getClientsWithDuePayments = async (req, res) => {
                 "monthly": 1,
                 "3-months": 3,
                 "6-months": 6,
+                "yearly": 12,
             };
             
             const duration = durationMap[client.membershipType.toLowerCase()] || 0;
