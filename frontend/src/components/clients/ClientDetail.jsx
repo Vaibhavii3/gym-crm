@@ -311,7 +311,7 @@ const getMembershipDuration = (type) => {
     if (typeLower.includes('6')) return '6 Months';
   }
   
-  if (typeLower.includes('annual')) return '12 Months';
+  if (typeLower.includes('yearly')) return '12 Months';
   
   return type; // Return as is if not recognized
 };

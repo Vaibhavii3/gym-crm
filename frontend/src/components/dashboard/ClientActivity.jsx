@@ -152,7 +152,7 @@ const ClientActivity = () => {
           return new Date(b.membershipStartDate) - new Date(a.membershipStartDate)
         })
         
-        setRecentJoins(sortedJoins)
+        setRecentJoins(sortedJoins.slice(0, 3))
         setError(null)
       } catch (err) {
         console.error('Error calculating recent joins:', err)

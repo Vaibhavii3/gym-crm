@@ -381,6 +381,7 @@ const Clients = () => {
     if (filter === 'monthly') matchesFilter = membershipType === 'monthly';
     if (filter === '3-months') matchesFilter = membershipType === '3-months';
     if (filter === '6-months') matchesFilter = membershipType === '6-months';
+    if (filter === 'yearly') matchesFilter = membershipType === 'yearly';
     if (filter === 'personal-trainer') matchesFilter = hasTrainer;
     
     return matchesSearch && matchesFilter;
@@ -443,6 +444,12 @@ const Clients = () => {
           onClick={() => setFilter('6-months')}
         >
           6 Months
+        </FilterButton>
+        <FilterButton 
+          active={filter === 'yearly'} 
+          onClick={() => setFilter('yearly')}
+        >
+          Yearly
         </FilterButton>
         <FilterButton 
           active={filter === 'personal-trainer'} 
