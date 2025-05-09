@@ -9,7 +9,8 @@ const DropdownContainer = styled.div`
   right: 20px;
   width: 350px;
   max-height: 500px;
-  background-color: var(--secondary-light);
+  // background-color: var(--secondary-light);
+  background-color: #121212;
   border-radius: var(--border-radius);
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
   z-index: 1000;

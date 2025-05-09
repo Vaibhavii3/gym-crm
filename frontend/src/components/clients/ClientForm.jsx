@@ -193,6 +193,7 @@ const ClientForm = ({ client, onClose }) => {
             <option value="Monthly">Monthly</option>
             <option value="3-months"> 3 Months</option>
             <option value="6-months">6 months</option>
+            <option value="Yearly"> Yearly </option>
           </select>
         </div>
 
