@@ -36,7 +36,7 @@ export const createClient = async (req, res) => {
         const image = req.files.clientImage;
 
         // Validation
-        if (!name || !phone || !membershipStartDate || !membershipType || totalPaid === undefined || dueAmount === undefined) {
+        if (!name || !phone || totalPaid === undefined || dueAmount === undefined) {
             return res.status(400).json({
                 success: false,
                 message: 'All fields are required',
@@ -174,12 +174,98 @@ export const getClientById = async (req, res) => {
 };
 
 // Update Client
+// export const updateClient = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+        
+//         if (!mongoose.Types.ObjectId.isValid(id)) {
+//             return res.status(400).json({ 
+//                 success: false,
+//                 message: 'Invalid client ID'
+//             });
+//         }
+        
+//         const clientExists = await Client.findById(id);
+//         if (!clientExists) {
+//             return res.status(404).json({ 
+//                 success: false,
+//                 message: 'Client not found' 
+//             });
+//         }
+        
+//         // Handle membership date updates
+//         if (req.body.membershipType && req.body.membershipStartDate) {
+//             const startDate = dayjs(req.body.membershipStartDate);
+//             if (!startDate.isValid()) {
+//                 return res.status(400).json({
+//                     success: false,
+//                     message: 'Invalid membership start date.'
+//                 });
+//             }
+            
+//             const durationMap = {
+//                 "monthly": 1,
+//                 "3-months": 3,
+//                 "6-months": 6,
+//                 "yearly": 12,
+                
+//             };
+            
+//             const membershipTypeLower = req.body.membershipType.toLowerCase();
+//             const duration = durationMap[membershipTypeLower];
+            
+//             if (!duration) {
+//                 return res.status(400).json({
+//                     success: false,
+//                     message: 'Invalid membership type. Choose from monthly, 3-months, 6-months, yearly.',
+//                 });
+//             }
+            
+//             req.body.membershipEndDate = startDate.add(duration, 'month').toDate();
+//         }
+        
+//         // Handle image update if provided
+//         if (req.files && req.files.clientImage) {
+//             try {
+//                 const image = req.files.clientImage;
+//                 const clientImage = await uploadImageToCloudinary(image, process.env.FOLDER_NAME);
+//                 req.body.image = clientImage.secure_url;
+//             } catch (uploadError) {
+//                 console.error('Error uploading image:', uploadError);
+//                 return res.status(500).json({
+//                     success: false,
+//                     message: 'Error uploading client image'
+//                 });
+//             }
+//         }
+        
+//         const client = await Client.findByIdAndUpdate(
+//             id, 
+//             req.body, 
+//             { new: true, runValidators: true }
+//         );
+        
+//         res.status(200).json({
+//             success: true,
+//             message: 'Client updated successfully',
+//             client
+//         });
+//     } catch (error) {
+//         console.error('Error updating client:', error);
+//         res.status(500).json({ 
+//             success: false,
+//             message: 'Internal Server Error',
+//             error: error.message 
+//         });
+//     }
+// };
+
 export const updateClient = async (req, res) => {
     try {
         const { id } = req.params;
         
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 success: false,
                 message: 'Invalid client ID'
             });
@@ -187,15 +273,32 @@ export const updateClient = async (req, res) => {
         
         const clientExists = await Client.findById(id);
         if (!clientExists) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 success: false,
-                message: 'Client not found' 
+                message: 'Client not found'
             });
         }
         
+        // Create a copy of the request body to avoid modifying the original
+        const updateData = { ...req.body };
+        
+        // Parse and handle null values for date fields
+        if (updateData.birthday === "null" || updateData.birthday === "") {
+            updateData.birthday = null;
+        }
+        
+        // Handle other date fields similarly if needed
+        if (updateData.membershipStartDate === "null" || updateData.membershipStartDate === "") {
+            updateData.membershipStartDate = null;
+        }
+        
         // Handle membership date updates
-        if (req.body.membershipType && req.body.membershipStartDate) {
-            const startDate = dayjs(req.body.membershipStartDate);
+        if (updateData.membershipType || (updateData.membershipStartDate && updateData.membershipStartDate !== null)) {
+            // Use new values or existing values from the client
+            const membershipType = updateData.membershipType || clientExists.membershipType;
+            const startDateValue = updateData.membershipStartDate || clientExists.membershipStartDate;
+            
+            const startDate = dayjs(startDateValue);
             if (!startDate.isValid()) {
                 return res.status(400).json({
                     success: false,
@@ -208,10 +311,9 @@ export const updateClient = async (req, res) => {
                 "3-months": 3,
                 "6-months": 6,
                 "yearly": 12,
-                
             };
             
-            const membershipTypeLower = req.body.membershipType.toLowerCase();
+            const membershipTypeLower = membershipType.toLowerCase();
             const duration = durationMap[membershipTypeLower];
             
             if (!duration) {
@@ -221,7 +323,25 @@ export const updateClient = async (req, res) => {
                 });
             }
             
-            req.body.membershipEndDate = startDate.add(duration, 'month').toDate();
+            // Update the end date based on the current values
+            updateData.membershipEndDate = startDate.add(duration, 'month').toDate();
+        }
+        
+        // Handle numeric fields
+        if (updateData.totalPaid !== undefined) {
+            updateData.totalPaid = updateData.totalPaid === "null" ? null : Number(updateData.totalPaid);
+        }
+        
+        if (updateData.dueAmount !== undefined) {
+            updateData.dueAmount = updateData.dueAmount === "null" ? null : Number(updateData.dueAmount);
+        }
+        
+        if (updateData.age !== undefined) {
+            updateData.age = updateData.age === "null" ? null : Number(updateData.age);
+        }
+        
+        if (updateData.weight !== undefined) {
+            updateData.weight = updateData.weight === "null" ? null : Number(updateData.weight);
         }
         
         // Handle image update if provided
@@ -229,7 +349,7 @@ export const updateClient = async (req, res) => {
             try {
                 const image = req.files.clientImage;
                 const clientImage = await uploadImageToCloudinary(image, process.env.FOLDER_NAME);
-                req.body.image = clientImage.secure_url;
+                updateData.image = clientImage.secure_url;
             } catch (uploadError) {
                 console.error('Error uploading image:', uploadError);
                 return res.status(500).json({
@@ -239,23 +359,23 @@ export const updateClient = async (req, res) => {
             }
         }
         
-        const client = await Client.findByIdAndUpdate(
-            id, 
-            req.body, 
+        const updatedClient = await Client.findByIdAndUpdate(
+            id,
+            updateData,
             { new: true, runValidators: true }
         );
         
         res.status(200).json({
             success: true,
             message: 'Client updated successfully',
-            client
+            client: updatedClient
         });
     } catch (error) {
         console.error('Error updating client:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
             message: 'Internal Server Error',
-            error: error.message 
+            error: error.message
         });
     }
 };
@@ -347,32 +467,85 @@ export const getUpcomingMembershipDue = async (req, res) => {
     }
 };
 
+// export const getClientsWithDuePayments = async (req, res) => {
+//     try {
+//         const clients = await Client.find({
+//             status: 'active',
+//             $or: [
+//                 { dueAmount: { $exists: true, $gt: 0 } },
+//                 { totalPaid: { $exists: true, $gt: 0 } },
+//             ]
+//         });
+
+//         const today = new Date();
+
+//         const filteredClients = clients.filter(client => {
+//             const durationMap = {
+//                 "monthly": 1,
+//                 "3-months": 3,
+//                 "6-months": 6,
+//                 "yearly": 12,
+//             };
+            
+//             const duration = durationMap[client.membershipType.toLowerCase()] || 0;
+//             const membershipEndDate = addMonths(new Date(client.membershipStartDate), duration);
+
+//             return membershipEndDate < today
+            
+//         });
+
+//         res.status(200).json(filteredClients);
+//     } catch (error) {
+//         console.error('Error fetching clients with due payments:', error);
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
 export const getClientsWithDuePayments = async (req, res) => {
     try {
-        const clients = await Client.find({
-            status: 'active',
-            dueAmount: { $exists: true, $gt: 0 },
+        // First, get all active clients
+        const allActiveClients = await Client.find({
+            status: 'active'
         });
 
         const today = new Date();
-
-        const filteredClients = clients.filter(client => {
-            const durationMap = {
-                "monthly": 1,
-                "3-months": 3,
-                "6-months": 6,
-                "yearly": 12,
-            };
+        
+        // Filter clients based on multiple conditions
+        const clientsWithDuePayments = allActiveClients.filter(client => {
+            // Case 1: Client hasn't paid anything (totalPaid = 0)
+            const hasNoPaidAmount = client.totalPaid === 0;
             
-            const duration = durationMap[client.membershipType.toLowerCase()] || 0;
-            const membershipEndDate = addMonths(new Date(client.membershipStartDate), duration);
-
-            return membershipEndDate < today
+            // Case 2: Client has due amount AND expired membership
+            const hasDueAmount = client.dueAmount > 0;
             
+            let isExpired = false;
+            
+            // Check if membership has expired
+            if (client.membershipEndDate) {
+                // If end date is directly stored
+                isExpired = new Date(client.membershipEndDate) < today;
+            } else if (client.membershipStartDate) {
+                // Calculate end date from start date and duration
+                const durationMap = {
+                    "monthly": 1,
+                    "3-months": 3,
+                    "6-months": 6,
+                    "yearly": 12,
+                };
+                
+                const membershipTypeLower = client.membershipType.toLowerCase();
+                const duration = durationMap[membershipTypeLower] || 0;
+                const membershipEndDate = addMonths(new Date(client.membershipStartDate), duration);
+                isExpired = membershipEndDate < today;
+            }
+            
+            // Return true if client matches any of our conditions:
+            // 1. Has no payment (totalPaid = 0)
+            // 2. Has due amount AND expired membership
+            return hasNoPaidAmount || (hasDueAmount && isExpired);
         });
 
-        // res.status(200).json(clients);
-        res.status(200).json(filteredClients);
+        res.status(200).json(clientsWithDuePayments);
     } catch (error) {
         console.error('Error fetching clients with due payments:', error);
         res.status(500).json({ message: error.message });
@@ -612,7 +785,6 @@ export const getMonthlyRevenue = async (req, res) => {
     }
 };
 
-// PATCH /api/clients/:id/mark-paid
 export const markClientAsPaid = async (req, res) => {
   try {
     const clientId = req.params.id;

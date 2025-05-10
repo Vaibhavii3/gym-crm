@@ -61,24 +61,108 @@ export const ClientProvider = ({ children }) => {
   
   
 
-  const updateClient = async (id, updateData) => {
-    try {
-      const token = localStorage.getItem('energygym_token');
-      const response = await axios.put(`${API_URL}/api/v1/clients/${id}`, updateData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+  // const updateClient = async (id, updateData) => {
+  //   try {
+  //     const token = localStorage.getItem('energygym_token');
+  //     const response = await axios.put(`${API_URL}/api/v1/clients/${id}`, updateData, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       }
+  //     });
+
+  //     setClients((prev) =>
+  //       prev.map((client) => (client._id === id ? response.data : client))
+  //     );
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error('Error updating client:', error);
+  //     throw error;
+  //   }
+  // };
+
+const updateClient = async (id, updateData) => {
+  try {
+    const token = localStorage.getItem('energygym_token');
+    if (!token) {
+      throw new Error('Authentication token not found');
+    }
+    
+    // Create FormData if there are files to upload
+    let requestData;
+    let headers = {
+      Authorization: `Bearer ${token}`
+    };
+    
+    // Check if updateData contains a file
+    if (updateData.clientImage && updateData.clientImage instanceof File) {
+      // Create FormData for file upload
+      const formData = new FormData();
+      
+      // Add the file
+      formData.append('clientImage', updateData.clientImage);
+      
+      // Add all other fields to formData
+      Object.keys(updateData).forEach(key => {
+        if (key !== 'clientImage') {
+          if (updateData[key] === null) {
+            // Send 'null' as a string for null values
+            formData.append(key, "null");
+          } else if (updateData[key] !== undefined) {
+            // Special handling for date objects
+            if (updateData[key] instanceof Date) {
+              formData.append(key, updateData[key].toISOString());
+            } 
+            // Handle booleans explicitly
+            else if (typeof updateData[key] === 'boolean') {
+              formData.append(key, updateData[key] ? 'true' : 'false');
+            }
+            // Handle objects/arrays by converting to JSON strings
+            else if (typeof updateData[key] === 'object' && updateData[key] !== null) {
+              formData.append(key, JSON.stringify(updateData[key]));
+            }
+            // Regular values
+            else {
+              formData.append(key, updateData[key]);
+            }
+          }
         }
       });
-
-      setClients((prev) =>
-        prev.map((client) => (client._id === id ? response.data : client))
-      );
-      return response.data;
-    } catch (error) {
-      console.error('Error updating client:', error);
-      throw error;
+      
+      requestData = formData;
+      // Let axios set the content type with boundary
+    } else {
+      // Regular JSON data without files
+      requestData = updateData;
+      headers['Content-Type'] = 'application/json';
     }
-  };
+    
+    const response = await axios.put(
+      `${API_URL}/api/v1/clients/${id}`, 
+      requestData, 
+      { headers }
+    );
+    
+    // Check if the response is successful and contains the client data
+    if (response.data && response.data.success && response.data.client) {
+      // Update the client in state
+      setClients(prev => 
+        prev.map(client => (client._id === id ? response.data.client : client))
+      );
+      
+      return response.data.client;
+    } else {
+      throw new Error(response.data.message || 'Failed to update client');
+    }
+  } catch (error) {
+    console.error('Error updating client:', error);
+    // Extract error message from axios error if available
+    const errorMessage = 
+      error.response?.data?.message || 
+      error.message || 
+      'An unknown error occurred while updating client';
+    throw new Error(errorMessage);
+  }
+};
 
   const deleteClient = async (id) => {
     try {
