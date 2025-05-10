@@ -88,25 +88,25 @@ const ClientCard = ({ client, onEdit, onDelete }) => {
           
           <div className="space-y-2 text-gray-300">
 
-            <div className="flex justify-between">
+            {/* <div className="flex justify-between">
               <span>Age:</span>
               <span>{client.birthday ? calculateAge(client.birthday) : 'Not provided' }</span>
-            </div>
+            </div> */}
 
             <div className="flex justify-between">
               <span>Phone:</span>
               <span>{client.phone }</span>
             </div>
 
-            <div className="flex justify-between">
+            {/* <div className="flex justify-between">
               <span>Subscription:</span>
               <span>{client.membershipType}</span>
-            </div>
+            </div> */}
 
-            <div className="flex justify-between">
+            {/* <div className="flex justify-between">
               <span>Trainer:</span>
               <span>{client.personalTrainer ? 'Yes' : 'No'}</span>
-            </div>
+            </div> */}
 
           </div>
           
