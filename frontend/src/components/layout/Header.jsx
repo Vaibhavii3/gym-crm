@@ -87,7 +87,8 @@ const ProfileDropdown = styled.div`
   position: absolute;
   top: 50px;
   right: 0;
-  background-color: var(--secondary-light);
+  // background-color: var(--secondary-light);
+  background-color: #121212;
   border-radius: var(--border-radius);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   width: 200px;

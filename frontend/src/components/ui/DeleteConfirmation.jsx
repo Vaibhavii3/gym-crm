@@ -4,6 +4,7 @@ import { FaExclamationTriangle } from 'react-icons/fa'
 const Container = styled.div`
   padding: 30px;
   text-align: center;
+  background-color: #121212;
 `
 
 const IconContainer = styled.div`
