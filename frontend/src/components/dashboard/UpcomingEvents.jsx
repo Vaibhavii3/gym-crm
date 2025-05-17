@@ -100,10 +100,11 @@ return aDate - bDate
                     <FaCalendarAlt className="inline mr-2" />
                     Due: {eventDate ? format(eventDate, 'MMM d') : 'Not available'}{' '}
                     {client.membershipEndDate && `(${format(new Date(client.membershipEndDate), 'MMM d, yyyy')})`}
-                    {!isBirthday && client.duePayments > 0 && 
-                      <span className='ml-1 text-yellow-500' >{client.dueAmount}</span>
-                    } 
-
+                   {!isBirthday && client.dueAmount > 0 && (
+  <span className="ml-2 text-yellow-400 font-semibold">
+    • Due Amount: ₹{client.dueAmount}
+  </span>
+)}
                   </>
                 )}
 
