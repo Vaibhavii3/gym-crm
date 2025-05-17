@@ -49,6 +49,33 @@ export const loginAdmin = async (req, res) => {
     }
 };
 
+
+export const changePasswordAdmin = async (req, res) => {
+    try {
+        const { oldPassword, newPassword } = req.body;
+
+        // Assuming adminId is added from authentication middleware
+        const admin = await Admin.findById(req.adminId);
+        if (!admin) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, admin.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Old password is incorrect" });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        admin.password = hashedPassword;
+        await admin.save();
+
+        res.status(200).json({ message: "Password changed successfully" });
+    } catch (error) {
+        console.error("Change password error:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
 export const getAdminProfile = async (req, res) => {
     const admin = req.admin;
     res.status(200).json(admin);
